@@ -16,6 +16,7 @@ const Box = (props) => {
         top: y,
         width: width,
         height: height,
+        borderRadius: width,
         transform: [{ rotate: angle + "rad" }],
         backgroundColor: props.color || "pink",
       }}

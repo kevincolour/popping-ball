@@ -8,14 +8,14 @@ import {
   Wind,
   Sprinkles,
   Motion,
-  DegenerateParticles
+  DegenerateParticles,
 } from "./systems";
 import Title from "./title";
 import Heading from "./heading";
 import BackButton from "./backButton";
 import Item from "./item";
 import { LinearGradient } from "expo-linear-gradient";
-import Logo from "./images/logo.png"
+import Logo from "./images/logo.png";
 
 export default class TableOfContents extends Component {
   constructor(props) {
@@ -23,19 +23,19 @@ export default class TableOfContents extends Component {
     this.state = {
       heading: props.contents.heading,
       items: props.contents.items,
-      animation: "fadeInRight"
+      animation: "fadeInRight",
     };
   }
 
-  onItemPress = async data => {
+  onItemPress = async (data) => {
     if (data.items) {
       let refs = [this.state.heading, "back"].concat(
-        this.state.items.map(x => x.heading)
+        this.state.items.map((x) => x.heading)
       );
       let tasks = refs
-        .map(r => this.refs[r])
-        .filter(r => r)
-        .map(r => r.fadeOutLeft(400));
+        .map((r) => this.refs[r])
+        .filter((r) => r)
+        .map((r) => r.fadeOutLeft(400));
 
       await Promise.all(tasks);
 
@@ -43,30 +43,30 @@ export default class TableOfContents extends Component {
         heading: data.heading,
         items: data.items,
         parent: Object.assign({}, this.state),
-        animation: "fadeInRight"
+        animation: "fadeInRight",
       });
     } else if (data.onPress) {
       data.onPress();
     }
   };
 
-  onBackPress = async ev => {
+  onBackPress = async (ev) => {
     if (this.state.parent) {
       this.refs.engine.publishEvent({
         type: "back-pressed",
         x: ev.nativeEvent.pageX,
-        y: ev.nativeEvent.pageY
+        y: ev.nativeEvent.pageY,
       });
 
       let parent = this.state.parent;
       let backButton = this.refs["back"];
       let refs = [this.state.heading].concat(
-        this.state.items.map(x => x.heading)
+        this.state.items.map((x) => x.heading)
       );
       let tasks = refs
-        .map(r => this.refs[r])
-        .filter(r => r)
-        .map(r => r.fadeOutRight(400))
+        .map((r) => this.refs[r])
+        .filter((r) => r)
+        .map((r) => r.fadeOutRight(400))
         .concat([backButton.fadeOutLeft(400)]);
 
       await Promise.all(tasks);
@@ -75,57 +75,56 @@ export default class TableOfContents extends Component {
         heading: parent.heading,
         items: parent.items,
         parent: null,
-        animation: "fadeInLeft"
+        animation: "fadeInLeft",
       });
     }
   };
 
   render() {
-    let backButton = this.state.parent
-      ? <BackButton
-          key={"back"}
-          ref={"back"}
-          onPress={this.onBackPress}
-          animation={"fadeInLeft"}
-        />
-      : null;
+    let backButton = this.state.parent ? (
+      <BackButton
+        key={"back"}
+        ref={"back"}
+        onPress={this.onBackPress}
+        animation={"fadeInLeft"}
+      />
+    ) : null;
 
     return (
       <LinearGradient
         colors={["#E96443", "#904E95"]}
         style={css.linearGradient}
       >
-
         <GameEngine
           ref={"engine"}
           running={!this.props.sceneVisible}
-          systems={[
-            SpawnParticles,
-            Gravity,
-            Wind,
-            Sprinkles,
-            Motion,
-            DegenerateParticles
-          ]}
+          systems={
+            [
+              // SpawnParticles,
+              // Gravity,
+              // Wind,
+              // Sprinkles,
+              // Motion,
+              // DegenerateParticles
+            ]
+          }
           entities={{
             "particle-system-01": {
               particles: [],
-              renderer: ParticleSystem
-            }
+              renderer: ParticleSystem,
+            },
           }}
         >
           <StatusBar hidden={false} barStyle={"light-content"} />
 
           <ScrollView contentContainerStyle={css.container}>
-
             <Image style={css.logo} source={Logo} />
             <View
               style={[
                 css.headingContainer,
-                { marginLeft: backButton ? -50 : 0 }
+                { marginLeft: backButton ? -50 : 0 },
               ]}
             >
-
               {backButton}
 
               <Heading
@@ -134,7 +133,6 @@ export default class TableOfContents extends Component {
                 ref={this.state.heading}
                 value={this.state.heading}
               />
-
             </View>
 
             {this.state.items.map((x, i) => {
@@ -145,15 +143,12 @@ export default class TableOfContents extends Component {
                   value={x.heading}
                   animation={this.state.animation}
                   delay={++i * 75}
-                  onPress={_ => this.onItemPress(x)}
+                  onPress={(_) => this.onItemPress(x)}
                 />
               );
             })}
-
           </ScrollView>
-
         </GameEngine>
-
       </LinearGradient>
     );
   }
@@ -161,22 +156,22 @@ export default class TableOfContents extends Component {
 
 const css = StyleSheet.create({
   linearGradient: {
-    flex: 1
+    flex: 1,
   },
   logo: {
     marginTop: "20%",
-    marginBottom: "10%"
+    marginBottom: "10%",
   },
   container: {
     alignSelf: "center",
     alignItems: "center",
-    width: "100%"
+    width: "100%",
   },
   headingContainer: {
     alignItems: "center",
     marginTop: "4.5%",
     marginBottom: "2.25%",
     alignSelf: "center",
-    flexDirection: "row"
-  }
+    flexDirection: "row",
+  },
 });
