@@ -3,6 +3,7 @@ import { View, Modal } from "react-native";
 import CloseButton from "./app/table-of-contents/closeButton";
 import EStyleSheet from "react-native-extended-stylesheet";
 
+import RigidBodies from "./app/physics/rigid-bodies";
 import TableOfContents from "./app/table-of-contents";
 import TouchChapter from "./app/touch-events";
 import PhysicsChapter from "./app/physics";
@@ -21,27 +22,28 @@ export default class App extends Component {
     super(props);
     this.state = {
       sceneVisible: false,
-      scene: null
+      scene: null,
     };
   }
 
-  mountScene = scene => {
+  mountScene = (scene) => {
     this.setState({
       sceneVisible: true,
-      scene: scene
+      scene: scene,
     });
   };
 
   unMountScene = () => {
     this.setState({
       sceneVisible: false,
-      scene: null
+      scene: null,
     });
   };
 
   render() {
     return (
       <View style={{ flex: 1 }}>
+        {/* <RigidBodies /> */}
         <TableOfContents
           sceneVisible={this.state.sceneVisible}
           contents={{
@@ -51,15 +53,15 @@ export default class App extends Component {
               PhysicsChapter(this.mountScene),
               //SensorsChapter(this.mountScene),
               OpenGLChapter(this.mountScene),
-              ExamplesChapter(this.mountScene)
-            ]
+              ExamplesChapter(this.mountScene),
+            ],
           }}
         />
         <Modal
           animationType={"slide"}
           transparent={false}
           visible={this.state.sceneVisible}
-          onRequestClose={_ => {}}
+          onRequestClose={(_) => {}}
         >
           {this.state.scene}
 

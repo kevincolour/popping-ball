@@ -1,44 +1,39 @@
-import React from "react";
-import { StatusBar, Dimensions } from "react-native";
+import React, { useState, forceUpdate } from "react";
+import { StatusBar, Dimensions, Button, View } from "react-native";
 import { GameEngine } from "react-native-game-engine";
-import { Physics, CreateBox, MoveBox, CleanBoxes } from "./systems";
+import {
+  Physics,
+  CreateBox,
+  MoveBox,
+  CleanBoxes,
+  ControlVelocity,
+} from "./systems";
 import { Box } from "./renderers";
 import Matter from "matter-js";
 
+Matter.Resolver._restingThresh = 0.001;
 Matter.Common.isElement = () => false; //-- Overriding this function because the original references HTMLElement
+const { width, height } = Dimensions.get("window");
 
 const RigidBodies = (props) => {
-  const { width, height } = Dimensions.get("window");
-  const boxSize = Math.trunc(Math.max(width, height) * 0.075);
-
   const engine = Matter.Engine.create({ enableSleeping: false });
   engine.world.gravity.y = 0;
   const world = engine.world;
-  const body = Matter.Bodies.rectangle(width / 2, -1000, boxSize, boxSize, {
-    frictionAir: 0.021,
+
+  const barrierOptions = { collisionFilter: { group: -1 }, isStatic: true };
+
+  const floor = Matter.Bodies.rectangle(width / 2, height, width, 1, {
+    ...barrierOptions,
   });
-  const floor = Matter.Bodies.rectangle(
-    width / 2,
-    height - boxSize / 2,
-    width,
-    boxSize,
-    { isStatic: true }
-  );
-  const topBarrier = Matter.Bodies.rectangle(width / 2, 0, width, boxSize, {
-    isStatic: true,
+  const topBarrier = Matter.Bodies.rectangle(width / 2, 0, width, 1, {
+    ...barrierOptions,
   });
-  const leftBarrier = Matter.Bodies.rectangle(0, height / 2, boxSize, height, {
-    isStatic: true,
+  const leftBarrier = Matter.Bodies.rectangle(0, height / 2, 1, height, {
+    ...barrierOptions,
   });
-  const rightBarrier = Matter.Bodies.rectangle(
-    width,
-    height / 2,
-    boxSize,
-    height,
-    {
-      isStatic: true,
-    }
-  );
+  const rightBarrier = Matter.Bodies.rectangle(width, height / 2, 1, height, {
+    ...barrierOptions,
+  });
 
   const constraint = Matter.Constraint.create({
     label: "Drag Constraint",
@@ -49,51 +44,30 @@ const RigidBodies = (props) => {
     angularStiffness: 1,
   });
 
-  Matter.World.add(world, [body, floor]);
-  Matter.World.add(world, [body, topBarrier]);
-  Matter.World.add(world, [body, leftBarrier]);
-  Matter.World.add(world, [body, rightBarrier]);
+  Matter.World.add(world, [
+    rightBarrier,
+    leftBarrier,
+    rightBarrier,
+    topBarrier,
+    floor,
+  ]);
   Matter.World.addConstraint(world, constraint);
+  let createVirus = true;
+
+  console.log("new run \n\n\n");
 
   return (
-    <GameEngine
-      systems={[Physics, CreateBox, MoveBox, CleanBoxes]}
-      entities={{
-        physics: { engine: engine, world: world, constraint: constraint },
-        box: {
-          body: body,
-          size: [boxSize, boxSize],
-          color: "pink",
-          renderer: Box,
-        },
-        floor: {
-          body: floor,
-          size: [width, boxSize],
-          color: "#86E9BE",
-          renderer: Box,
-        },
-        top: {
-          body: topBarrier,
-          size: [width, boxSize],
-          color: "pink",
-          renderer: Box,
-        },
-        left: {
-          body: leftBarrier,
-          size: [boxSize, height],
-          color: "pink",
-          renderer: Box,
-        },
-        right: {
-          body: rightBarrier,
-          size: [boxSize, height],
-          color: "pink",
-          renderer: Box,
-        },
-      }}
-    >
-      <StatusBar hidden={true} />
-    </GameEngine>
+    <>
+      <GameEngine
+        systems={[Physics, CreateBox, MoveBox, CleanBoxes, ControlVelocity]}
+        entities={{
+          physics: { engine: engine, world: world, constraint: constraint },
+          createVirus: createVirus,
+        }}
+      >
+        <StatusBar hidden={true} />
+      </GameEngine>
+    </>
   );
 };
 
