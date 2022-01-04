@@ -33,6 +33,8 @@ const handleCollision = (state, world, virusBody, bulletBody) => {
     inertia: Infinity,
     inverseInertia: 0,
     label: "Virus",
+    mass: 1,
+    inverseMass: 1,
   };
   let body = Matter.Bodies.circle(
     0 + virusBody.position.x,
@@ -83,6 +85,8 @@ const CreateBox = (state, { touches, screen }) => {
   let engine = state["physics"].engine;
 
   if (state["createVirus"]) {
+    console.log("createcollissionhanlder");
+    console.log(Matter.World.Bodies);
     Matter.Events.on(engine, "collisionStart", (event) => {
       // console.log(event.pairs.length, "eventPairs");
       event.pairs.map((ele) => {
@@ -115,12 +119,13 @@ const CreateBox = (state, { touches, screen }) => {
         friction: 0,
         frictionStatic: 0,
         restitution: 1,
-        inertia: Infinity,
-        inverseInertia: 0,
+        // inertia: Infinity,
+        // inverseInertia: 0,
         label: "Virus",
+        mass: 1,
+        inverseMass: 1,
       }
     );
-    console.log(body);
     Matter.Body.setVelocity(body, {
       x: 3,
       y: 3,
@@ -141,17 +146,17 @@ const CreateBox = (state, { touches, screen }) => {
   return state;
 };
 
-const MoveBox = (state, { touches, screen }) => {
+const CreateBullet = (state, { touches, screen }) => {
   let constraint = state["physics"].constraint;
   const boxSize = Math.trunc(Math.max(screen.width, screen.height) * 0.075) / 2;
   let world = state["physics"].world;
   //-- Handle start touch
-  let start = touches.find((x) => x.type === "start");
-
-  if (start) {
+  let end = touches.find((x) => x.type === "end");
+  let move = touches.find((x) => x.type === "move");
+  if (end && move) {
     let body = Matter.Bodies.circle(
-      start.event.pageX,
-      start.event.pageY,
+      screen.width / 2,
+      screen.height / 2,
       boxSize / 2,
       {
         frictionAir: 0,
@@ -162,66 +167,35 @@ const MoveBox = (state, { touches, screen }) => {
     );
     Matter.World.add(world, [body]);
 
-    // Matter.Body.setVelocity(body, {
-    //   x: 10,
-    //   y: 10,
-    // });
-
     state[body.id] = {
       body: body,
       size: [boxSize, boxSize],
       color: boxIds % 2 == 0 ? "red" : "#B8E986",
       renderer: Box,
     };
-
-    let startPos = [start.event.pageX, start.event.pageY];
-
-    let boxId = Object.keys(state).find((key) => {
-      let body = state[key].body;
-
-      return (
-        body && distance([body.position.x, body.position.y], startPos) < 25
-      );
+    Matter.Body.setVelocity(body, {
+      x: move.delta.pageX,
+      y: move.delta.pageY,
     });
-
-    if (boxId) {
-      constraint.pointA = { x: startPos[0], y: startPos[1] };
-      constraint.bodyB = state[boxId].body;
-      constraint.pointB = { x: 0, y: 0 };
-      constraint.angleB = state[boxId].body.angle;
-    }
-  }
-
-  //-- Handle move touch
-  let move = touches.find((x) => x.type === "move");
-
-  if (move) {
-    constraint.pointA = { x: move.event.pageX, y: move.event.pageY };
-  }
-
-  //-- Handle end touch
-  let end = touches.find((x) => x.type === "end");
-
-  if (end) {
-    constraint.pointA = null;
-    constraint.bodyB = null;
-    constraint.pointB = null;
   }
 
   return state;
 };
 
 const CleanBoxes = (state, { touches, screen }) => {
-  //   let world = state["physics"].world;
+  let world = state["physics"].world;
 
-  //   Object.keys(state)
-  //     .filter(
-  //       (key) => state[key].body && state[key].body.position.y > screen.height * 2
-  //     )
-  //     .forEach((key) => {
-  //       Matter.Composite.remove(world, state[key].body);
-  // delete state[key];
-  //     });
+  Object.keys(state)
+    .filter(
+      (key) =>
+        state[key].body &&
+        (state[key].body.position.y > screen.height * 2 ||
+          state[key].body.position.x > screen.width * 2)
+    )
+    .forEach((key) => {
+      Matter.Composite.remove(world, state[key].body);
+      delete state[key];
+    });
 
   return state;
 };
@@ -241,4 +215,4 @@ const ControlVelocity = (state, { touches, screen }) => {
   return state;
 };
 
-export { Physics, CreateBox, MoveBox, CleanBoxes, ControlVelocity };
+export { Physics, CreateBox, CleanBoxes, ControlVelocity, CreateBullet };

@@ -3,12 +3,8 @@ import { View, Modal } from "react-native";
 import CloseButton from "./app/table-of-contents/closeButton";
 import EStyleSheet from "react-native-extended-stylesheet";
 
-import RigidBodies from "./app/physics/rigid-bodies";
 import TableOfContents from "./app/table-of-contents";
-import TouchChapter from "./app/touch-events";
 import PhysicsChapter from "./app/physics";
-//import SensorsChapter from "./app/sensors";
-import ExamplesChapter from "./app/examples";
 import OpenGLChapter from "./app/opengl";
 
 EStyleSheet.build();
@@ -43,17 +39,13 @@ export default class App extends Component {
   render() {
     return (
       <View style={{ flex: 1 }}>
-        {/* <RigidBodies /> */}
         <TableOfContents
           sceneVisible={this.state.sceneVisible}
           contents={{
             heading: "Chapters",
             items: [
-              TouchChapter(this.mountScene),
               PhysicsChapter(this.mountScene),
-              //SensorsChapter(this.mountScene),
               OpenGLChapter(this.mountScene),
-              ExamplesChapter(this.mountScene),
             ],
           }}
         />

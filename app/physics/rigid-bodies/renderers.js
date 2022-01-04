@@ -46,4 +46,25 @@ const Virus = (props) => {
   );
 };
 
-export { Box, Virus };
+const PlayerCircle = (props) => {
+  const width = Math.sqrt(props.body.area / Math.PI) * 2;
+  const height = width;
+  const x = props.body.position.x - width / 2;
+  const y = props.body.position.y - height / 2;
+
+  return (
+    <Animated.View
+      style={{
+        position: "absolute",
+        left: x,
+        top: y,
+        width: width,
+        height: height,
+        borderRadius: width,
+        backgroundColor: "purple",
+      }}
+    />
+  );
+};
+
+export { Box, Virus, PlayerCircle };

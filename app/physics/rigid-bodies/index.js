@@ -7,8 +7,9 @@ import {
   MoveBox,
   CleanBoxes,
   ControlVelocity,
+  CreateBullet,
 } from "./systems";
-import { Box } from "./renderers";
+import { PlayerCircle } from "./renderers";
 import Matter from "matter-js";
 
 Matter.Resolver._restingThresh = 0.001;
@@ -35,6 +36,11 @@ const RigidBodies = (props) => {
     ...barrierOptions,
   });
 
+  const playerRadius = width / 16;
+  const playerBody = Matter.Bodies.circle(width / 2, height / 2, playerRadius, {
+    isStatic: true,
+  });
+
   const constraint = Matter.Constraint.create({
     label: "Drag Constraint",
     pointA: { x: 0, y: 0 },
@@ -50,6 +56,7 @@ const RigidBodies = (props) => {
     rightBarrier,
     topBarrier,
     floor,
+    playerBody,
   ]);
   Matter.World.addConstraint(world, constraint);
   let createVirus = true;
@@ -59,10 +66,14 @@ const RigidBodies = (props) => {
   return (
     <>
       <GameEngine
-        systems={[Physics, CreateBox, MoveBox, CleanBoxes, ControlVelocity]}
+        systems={[Physics, CreateBox, CreateBullet, CleanBoxes]}
         entities={{
           physics: { engine: engine, world: world, constraint: constraint },
           createVirus: createVirus,
+          playerBody: {
+            body: playerBody,
+            renderer: PlayerCircle,
+          },
         }}
       >
         <StatusBar hidden={true} />
