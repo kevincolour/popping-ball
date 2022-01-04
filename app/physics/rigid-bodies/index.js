@@ -1,18 +1,14 @@
 import React, { useState, forceUpdate } from "react";
 import { StatusBar, Dimensions, Button, View } from "react-native";
 import { GameEngine } from "react-native-game-engine";
-import {
-  Physics,
-  CreateBox,
-  MoveBox,
-  CleanBoxes,
-  ControlVelocity,
-  CreateBullet,
-} from "./systems";
+import { Physics, CreateBox, CleanBoxes, CreateBullet } from "./systems";
 import { PlayerCircle } from "./renderers";
 import Matter from "matter-js";
 
-Matter.Resolver._restingThresh = 0.001;
+const SCREEN_HEIGHT = Dimensions.get("screen").height;
+const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 24;
+const SCREEN_WIDTH = Dimensions.get("screen").width - STATUS_BAR_HEIGHT;
+// Matter.Resolver._restingThresh = 0.001;
 Matter.Common.isElement = () => false; //-- Overriding this function because the original references HTMLElement
 const { width, height } = Dimensions.get("window");
 
@@ -23,42 +19,49 @@ const RigidBodies = (props) => {
 
   const barrierOptions = { collisionFilter: { group: -1 }, isStatic: true };
 
-  const floor = Matter.Bodies.rectangle(width / 2, height, width, 1, {
-    ...barrierOptions,
-  });
-  const topBarrier = Matter.Bodies.rectangle(width / 2, 0, width, 1, {
-    ...barrierOptions,
-  });
+  const floor = Matter.Bodies.rectangle(
+    SCREEN_WIDTH / 2,
+    height,
+    SCREEN_WIDTH,
+    1,
+    {
+      ...barrierOptions,
+    }
+  );
+  const topBarrier = Matter.Bodies.rectangle(
+    SCREEN_WIDTH / 2,
+    0,
+    SCREEN_WIDTH,
+    1,
+    {
+      ...barrierOptions,
+    }
+  );
   const leftBarrier = Matter.Bodies.rectangle(0, height / 2, 1, height, {
     ...barrierOptions,
   });
-  const rightBarrier = Matter.Bodies.rectangle(width, height / 2, 1, height, {
-    ...barrierOptions,
-  });
+  const rightBarrier = Matter.Bodies.rectangle(
+    SCREEN_WIDTH,
+    height / 2,
+    1,
+    height,
+    {
+      ...barrierOptions,
+    }
+  );
 
   const playerRadius = width / 16;
   const playerBody = Matter.Bodies.circle(width / 2, height / 2, playerRadius, {
-    isStatic: true,
-  });
-
-  const constraint = Matter.Constraint.create({
-    label: "Drag Constraint",
-    pointA: { x: 0, y: 0 },
-    pointB: { x: 0, y: 0 },
-    length: 0.01,
-    stiffness: 1,
-    angularStiffness: 1,
+    ...barrierOptions,
   });
 
   Matter.World.add(world, [
-    rightBarrier,
     leftBarrier,
     rightBarrier,
     topBarrier,
     floor,
     playerBody,
   ]);
-  Matter.World.addConstraint(world, constraint);
   let createVirus = true;
 
   console.log("new run \n\n\n");
@@ -66,9 +69,9 @@ const RigidBodies = (props) => {
   return (
     <>
       <GameEngine
-        systems={[Physics, CreateBox, CreateBullet, CleanBoxes]}
+        systems={[Physics, CreateBullet, CreateBox, CleanBoxes]}
         entities={{
-          physics: { engine: engine, world: world, constraint: constraint },
+          physics: { engine: engine, world: world },
           createVirus: createVirus,
           playerBody: {
             body: playerBody,

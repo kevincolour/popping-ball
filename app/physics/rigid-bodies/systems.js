@@ -1,4 +1,4 @@
-import { Box, Virus } from "./renderers";
+import { Bullet, Virus } from "./renderers";
 import Matter from "matter-js";
 import { Dimensions } from "react-native";
 
@@ -6,8 +6,6 @@ const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 
 let boxIds = 0;
 let virusID = 0;
-const distance = ([x1, y1], [x2, y2]) =>
-  Math.sqrt(Math.abs(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)));
 
 const Physics = (state, { touches, time }) => {
   let engine = state["physics"].engine;
@@ -111,8 +109,8 @@ const CreateBox = (state, { touches, screen }) => {
       Math.trunc(Math.max(screen.width, screen.height) * 0.075) * 2;
 
     let body = Matter.Bodies.circle(
-      0 + virusSize + 5,
-      0 + virusSize,
+      0 + virusSize + screen.width / 2,
+      0 + virusSize + screen.height / 2,
       virusSize / 2,
       {
         frictionAir: 0,
@@ -127,8 +125,8 @@ const CreateBox = (state, { touches, screen }) => {
       }
     );
     Matter.Body.setVelocity(body, {
-      x: 3,
-      y: 3,
+      x: 1,
+      y: 1,
     });
 
     // Matter.Body.applyForce(body, { x: 3, y: 3 }, { x: 3, y: 3 });
@@ -146,8 +144,16 @@ const CreateBox = (state, { touches, screen }) => {
   return state;
 };
 
+const roundToArray = (roundValues, goal) => {
+  return roundValues.reduce(function (prev, curr) {
+    return Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev;
+  });
+};
+
+const distance = ([x1, y1], [x2, y2]) =>
+  Math.sqrt(Math.abs(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)));
+
 const CreateBullet = (state, { touches, screen }) => {
-  let constraint = state["physics"].constraint;
   const boxSize = Math.trunc(Math.max(screen.width, screen.height) * 0.075) / 2;
   let world = state["physics"].world;
   //-- Handle start touch
@@ -171,11 +177,23 @@ const CreateBullet = (state, { touches, screen }) => {
       body: body,
       size: [boxSize, boxSize],
       color: boxIds % 2 == 0 ? "red" : "#B8E986",
-      renderer: Box,
+      renderer: Bullet,
     };
+
+    const roundValues = [4, 10, 20];
+
+    let distanceVal = Math.abs(
+      distance([0, 0], [move.delta.pageX, move.delta.pageY])
+    );
+    let distanceRounded = roundToArray(roundValues, distanceVal);
+    console.log(distanceRounded);
+    console.log(Object.keys(state));
+
+    let multiplier = distanceRounded / distanceVal;
+
     Matter.Body.setVelocity(body, {
-      x: move.delta.pageX,
-      y: move.delta.pageY,
+      x: move.delta.pageX * multiplier,
+      y: move.delta.pageY * multiplier,
     });
   }
 
@@ -189,10 +207,13 @@ const CleanBoxes = (state, { touches, screen }) => {
     .filter(
       (key) =>
         state[key].body &&
-        (state[key].body.position.y > screen.height * 2 ||
-          state[key].body.position.x > screen.width * 2)
+        (state[key].body.position.y > screen.height ||
+          state[key].body.position.y < 0 ||
+          state[key].body.position.x < 0 ||
+          state[key].body.position.x > screen.width * 1.25)
     )
     .forEach((key) => {
+      console.log("DELETE KEY ", key);
       Matter.Composite.remove(world, state[key].body);
       delete state[key];
     });
