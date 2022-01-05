@@ -1,6 +1,7 @@
 import { Bullet, Virus } from "./renderers";
 import Matter from "matter-js";
 import { Dimensions } from "react-native";
+import * as Haptics from "expo-haptics";
 
 const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 
@@ -17,6 +18,8 @@ const Physics = (state, { touches, time }) => {
 
 const handleCollision = (state, world, virusBody, bulletBody) => {
   console.log("Collision");
+
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   Matter.World.remove(world, virusBody);
   Matter.World.remove(world, bulletBody);
   delete state[virusBody.id];
@@ -34,33 +37,24 @@ const handleCollision = (state, world, virusBody, bulletBody) => {
     mass: 1,
     inverseMass: 1,
   };
-  let body = Matter.Bodies.circle(
+  let body = Matter.Bodies.rectangle(
     0 + virusBody.position.x,
     0 + virusBody.position.y,
     virusSize,
-    newBodyOptions
-  );
-
-  let copy = Matter.Bodies.circle(
-    0 + virusBody.position.x,
-    0 + virusBody.position.y + virusSize * 2,
     virusSize,
     newBodyOptions
   );
 
-  Matter.Body.applyForce(
-    body,
-    { x: virusBody.position.x, y: virusBody.position.y },
-    { x: -0.01, y: -0.01 }
+  let copy = Matter.Bodies.rectangle(
+    0 + virusBody.position.x,
+    0 + virusBody.position.y + virusSize * 2,
+    virusSize,
+    virusSize,
+    newBodyOptions
   );
-  Matter.Body.applyForce(
-    copy,
-    {
-      x: virusBody.position.x,
-      y: virusBody.position.y,
-    },
-    { x: 0.01, y: 0.01 }
-  );
+
+  Matter.Body.setVelocity(body, { x: -1, y: -1 });
+  Matter.Body.setVelocity(copy, { x: 1, y: 1 });
 
   Matter.World.add(world, [body, copy]);
 
@@ -108,10 +102,11 @@ const CreateBox = (state, { touches, screen }) => {
     const virusSize =
       Math.trunc(Math.max(screen.width, screen.height) * 0.075) * 2;
 
-    let body = Matter.Bodies.circle(
+    let body = Matter.Bodies.rectangle(
       0 + virusSize + screen.width / 2,
       0 + virusSize + screen.height / 2,
-      virusSize / 2,
+      virusSize,
+      virusSize,
       {
         frictionAir: 0,
         friction: 0,
@@ -125,8 +120,8 @@ const CreateBox = (state, { touches, screen }) => {
       }
     );
     Matter.Body.setVelocity(body, {
-      x: 1,
-      y: 1,
+      x: -1,
+      y: -3,
     });
 
     // Matter.Body.applyForce(body, { x: 3, y: 3 }, { x: 3, y: 3 });
@@ -207,15 +202,15 @@ const CleanBoxes = (state, { touches, screen }) => {
     .filter(
       (key) =>
         state[key].body &&
-        (state[key].body.position.y > screen.height ||
+        (state[key].body.position.y > screen.height * 1.25 ||
           state[key].body.position.y < 0 ||
           state[key].body.position.x < 0 ||
           state[key].body.position.x > screen.width * 1.25)
     )
     .forEach((key) => {
-      console.log("DELETE KEY ", key);
-      Matter.Composite.remove(world, state[key].body);
-      delete state[key];
+      // console.log("DELETE KEY ", key);
+      // Matter.Composite.remove(world, state[key].body);
+      // delete state[key];
     });
 
   return state;

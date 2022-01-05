@@ -32,13 +32,35 @@ const Virus = (props) => {
 
   return (
     <Image
-      source={require("./assets/8Ballv2.gif")}
+      source={require("./assets/4Ball.gif")}
       style={{
         position: "absolute",
         left: x,
         top: y,
         width: width,
         height: height,
+        // backgroundColor: "black",
+      }}
+    />
+  );
+};
+
+const Virus2 = (props) => {
+  const width = props.size[0];
+  const height = props.size[1];
+  const x = props.body.position.x - width / 2;
+  const y = props.body.position.y - height / 2;
+
+  return (
+    <Image
+      source={require("./assets/4Ball.gif")}
+      style={{
+        position: "absolute",
+        left: x,
+        top: y,
+        width: width,
+        height: height,
+        // backgroundColor: "black",
       }}
     />
   );
