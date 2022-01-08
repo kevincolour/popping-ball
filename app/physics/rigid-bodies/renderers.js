@@ -29,17 +29,17 @@ const Virus = (props) => {
   const height = props.size[1];
   const x = props.body.position.x - width / 2;
   const y = props.body.position.y - height / 2;
-
+  // console.log(props);
   return (
     <Image
-      source={require("./assets/4Ball.gif")}
+      source={props.image}
       style={{
         position: "absolute",
         left: x,
         top: y,
         width: width,
         height: height,
-        // backgroundColor: "black",
+        backgroundColor: "black",
       }}
     />
   );

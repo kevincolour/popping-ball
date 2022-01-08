@@ -1,9 +1,16 @@
 import React, { useState, forceUpdate } from "react";
-import { StatusBar, Dimensions, Button, View } from "react-native";
+import {
+  StatusBar,
+  Dimensions,
+  Button,
+  View,
+  ImageBackground,
+} from "react-native";
 import { GameEngine } from "react-native-game-engine";
 import { Physics, CreateBox, CleanBoxes, CreateBullet } from "./systems";
 import { PlayerCircle } from "./renderers";
 import Matter from "matter-js";
+import { useAssets, Asset } from "expo-asset";
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 24;
 Matter.Resolver._restingThresh = 0.001;
@@ -11,6 +18,11 @@ Matter.Common.isElement = () => false; //-- Overriding this function because the
 const { width, height } = Dimensions.get("window");
 
 const RigidBodies = (props) => {
+  const [assets, error] = useAssets([
+    require("./assets/8Ball.gif"),
+    require("./assets/4Ball.gif"),
+  ]);
+  console.log(error, assets);
   const engine = Matter.Engine.create({ enableSleeping: false });
   engine.world.gravity.y = 0;
   const world = engine.world;
@@ -35,6 +47,8 @@ const RigidBodies = (props) => {
     ...barrierOptions,
   });
 
+  let image = require("./assets/background2.jpg");
+
   Matter.World.add(world, [
     leftBarrier,
     rightBarrier,
@@ -45,22 +59,24 @@ const RigidBodies = (props) => {
   let createVirus = true;
 
   console.log("new run \n\n\n");
-
   return (
     <>
-      <GameEngine
-        systems={[Physics, CreateBullet, CreateBox, CleanBoxes]}
-        entities={{
-          physics: { engine: engine, world: world },
-          createVirus: createVirus,
-          playerBody: {
-            body: playerBody,
-            renderer: PlayerCircle,
-          },
-        }}
-      >
-        <StatusBar hidden={true} />
-      </GameEngine>
+      <ImageBackground source={image} style={{ flex: 1 }}>
+        <GameEngine
+          systems={[Physics, CreateBullet, CreateBox, CleanBoxes]}
+          entities={{
+            physics: { engine: engine, world: world },
+            createVirus: createVirus,
+            playerBody: {
+              body: playerBody,
+              renderer: PlayerCircle,
+            },
+            images: props.images,
+          }}
+        >
+          <StatusBar hidden={true} />
+        </GameEngine>
+      </ImageBackground>
     </>
   );
 };

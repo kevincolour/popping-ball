@@ -17,7 +17,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": ["assets", "app/physics/rigid-bodies/assets"],
     "ios": {
       "supportsTablet": true
     },

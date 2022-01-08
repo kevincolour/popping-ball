@@ -24,7 +24,8 @@ const handleCollision = (state, world, virusBody, bulletBody) => {
   Matter.World.remove(world, bulletBody);
   delete state[virusBody.id];
   delete state[bulletBody.id];
-  let virusSize = Math.sqrt(virusBody.area / Math.PI) / 2;
+  console.log(virusBody);
+  let virusSizeHalved = Math.sqrt(virusBody.area) / 2;
   // virusBody.
   let newBodyOptions = {
     frictionAir: 0,
@@ -40,16 +41,16 @@ const handleCollision = (state, world, virusBody, bulletBody) => {
   let body = Matter.Bodies.rectangle(
     0 + virusBody.position.x,
     0 + virusBody.position.y,
-    virusSize,
-    virusSize,
+    virusSizeHalved,
+    virusSizeHalved,
     newBodyOptions
   );
 
   let copy = Matter.Bodies.rectangle(
     0 + virusBody.position.x,
-    0 + virusBody.position.y + virusSize * 2,
-    virusSize,
-    virusSize,
+    0 + virusBody.position.y + virusSizeHalved * 2,
+    virusSizeHalved,
+    virusSizeHalved,
     newBodyOptions
   );
 
@@ -60,14 +61,16 @@ const handleCollision = (state, world, virusBody, bulletBody) => {
 
   state[body.id] = {
     body: body,
-    size: [virusSize * 2, virusSize * 2],
+    size: [virusSizeHalved, virusSizeHalved],
     color: boxIds % 2 == 0 ? "red" : "#B8E986",
+    image: state["images"][0],
     renderer: Virus,
   };
   state[copy.id] = {
     body: copy,
-    size: [virusSize * 2, virusSize * 2],
+    size: [virusSizeHalved, virusSizeHalved],
     color: boxIds % 2 == 0 ? "red" : "#B8E986",
+    image: state["images"][0],
     renderer: Virus,
   };
 };
@@ -127,10 +130,12 @@ const CreateBox = (state, { touches, screen }) => {
     // Matter.Body.applyForce(body, { x: 3, y: 3 }, { x: 3, y: 3 });
     Matter.World.add(world, [body]);
 
+    console.log(state["images"]);
     state[body.id] = {
       body: body,
       size: [virusSize, virusSize],
       color: boxIds % 2 == 0 ? "red" : "#B8E986",
+      image: state["images"][0],
       renderer: Virus,
     };
     state["createVirus"] = false;

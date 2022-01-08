@@ -37,18 +37,10 @@ export default class App extends Component {
   };
 
   render() {
+    let image = require("./assets/background2.jpg");
+
     return (
       <View style={{ flex: 1 }}>
-        <TableOfContents
-          sceneVisible={this.state.sceneVisible}
-          contents={{
-            heading: "Chapters",
-            items: [
-              PhysicsChapter(this.mountScene),
-              OpenGLChapter(this.mountScene),
-            ],
-          }}
-        />
         <Modal
           animationType={"slide"}
           transparent={false}
