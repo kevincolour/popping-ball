@@ -1,17 +1,27 @@
 import React, { Component } from "react";
-import { View, Modal, Image } from "react-native";
+import { View, Modal, Image, Text } from "react-native";
 import CloseButton from "./app/table-of-contents/closeButton";
 import EStyleSheet from "react-native-extended-stylesheet";
 
 import TableOfContents from "./app/table-of-contents";
 import RigidBodies from "./app/physics/rigid-bodies";
 import OpenGLChapter from "./app/opengl";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 EStyleSheet.build();
 
 //-- There is a bunch of warnings about the use of deprecated lifecycle methods. A lot of them are caused
 //-- by dependencies. Comment out the line below to see the warnings.
 console.disableYellowBox = true;
+
+// const HighScore = async (props) => {
+//   const highScore = await getData();
+//   console.log(highScore);
+//   return (
+//     <View style={{ position: "absolute", flex: 1 }}>
+//       <Text>{highScore ? highScore : ""}</Text>
+//     </View>
+//   );
+// };
 
 export default class App extends Component {
   constructor(props) {
@@ -44,18 +54,23 @@ export default class App extends Component {
       scene: null,
     });
   };
-  restartScene = () => {
+  restartScene = async () => {
+    // storeData(time);
+    // getData();
     this.unMountScene();
     this.mountScene();
   };
 
   render() {
     return (
-      <View style={{ flex: 1 }}>
-        {this.state.scene}
+      <>
+        {/* <HighScore /> */}
+        <View style={{ flex: 1 }}>
+          {this.state.scene}
 
-        <CloseButton onPress={this.restartScene} />
-      </View>
+          <CloseButton onPress={this.restartScene} />
+        </View>
+      </>
     );
   }
 }

@@ -1,8 +1,9 @@
-import { Bullet, Virus } from "./renderers";
+import { Bullet, Virus, TimeScore } from "./renderers";
 import Matter from "matter-js";
 import { Dimensions } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 
@@ -14,6 +15,11 @@ const Physics = (state, { touches, time }) => {
   let engine = state["physics"].engine;
 
   Matter.Engine.update(engine, time.delta);
+
+  state["currentTimer"] = {
+    time: state["timer"],
+    renderer: TimeScore,
+  };
 
   return state;
 };
@@ -104,8 +110,10 @@ const CreateCollission = (state, { screen }) => {
         }
         let playerBody = bothBodies.find((ele) => ele.label == "playerCircle");
         if (virusBody && playerBody) {
-          let restartFunc = state["restart"];
-          restartFunc();
+          state["dataCallbacks"].newScoreProcess(
+            JSON.stringify(state["timer"])
+          );
+          // AsyncStorage.setItem("@highscore", JSON.stringify(state["timer"]));
           //explode
         }
 
@@ -147,8 +155,8 @@ const CreateBox = (state, { touches, screen, time }) => {
       }
     );
     Matter.Body.setVelocity(body, {
-      x: 1,
-      y: 1,
+      x: state["velocity"].x,
+      y: state["velocity"].y,
     });
 
     // Matter.Body.applyForce(body, { x: 3, y: 3 }, { x: 3, y: 3 });
@@ -177,12 +185,11 @@ const distance = ([x1, y1], [x2, y2]) =>
   Math.sqrt(Math.abs(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)));
 
 const CreateBullet = (state, { touches, screen }) => {
-  const boxSize = Math.trunc(Math.max(screen.width, screen.height) * 0.075) / 4;
+  const boxSize =
+    Math.trunc((Math.max(screen.width, screen.height) * 0.075) / 4) * 0.8;
   let world = state["physics"].world;
   //-- Handle start touch
   let end = touches.find((x) => x.type === "end");
-  let move = touches.find((x) => x.type === "move");
-  let press = touches.find((x) => x.type === "press");
   let start = touches.find((x) => x.type === "start");
   if (start) {
     state["dataObj"].startX = start.event.pageX;
@@ -198,9 +205,12 @@ const CreateBullet = (state, { touches, screen }) => {
     let distanceX =
       end.event.pageX -
       (state["dataObj"]?.startX ? state["dataObj"]?.startX : 0);
+    distanceX = distanceX / 10;
     let distanceY =
       end.event.pageY -
       (state["dataObj"]?.startY ? state["dataObj"]?.startY : 0);
+
+    distanceY = distanceY / 10;
 
     if (distanceX == 0 && distanceY == 0) {
       return state;
@@ -230,6 +240,7 @@ const CreateBullet = (state, { touches, screen }) => {
     let distanceRounded = roundToArray(roundValues, distanceVal);
 
     let multiplier = distanceRounded / distanceVal;
+    multiplier = 1;
 
     let x = distanceX * multiplier;
     let y = distanceY * multiplier;
@@ -285,11 +296,13 @@ const Timer = (state, { time }) => {
   let timeMS = parseInt(state["timer"]);
 
   let timeSecond = Math.ceil(timeMS / 1000);
-  let timeDifficulty = Math.min(9, Math.floor(timeSecond / 10));
+  let timeDifficulty = Math.min(8, Math.floor(timeSecond / 10));
   if (
     timeSecond % (10 - timeDifficulty) == 0 &&
-    timeSecondPrev & (10 - timeDifficulty != 0)
+    timeSecondPrev % (10 - timeDifficulty) != 0
   ) {
+    state["velocity"].x = state["velocity"].x * 1.3;
+    state["velocity"].y = state["velocity"].y * 1.3;
     state["createVirus"] = true;
   }
   return state;

@@ -1,8 +1,41 @@
 import React from "react";
-import { View, Image } from "react-native";
+import { View, Image, Text } from "react-native";
 
 import Animated from "react-native-reanimated";
 
+const TimeScore = (props) => {
+  const floatTime = parseInt(props.time);
+
+  const second = (floatTime / 1000).toFixed(0);
+  const millisecond = (floatTime / 1000).toFixed(3).toString().slice(-3);
+
+  return (
+    <View
+      style={{
+        position: "absolute",
+        top: 10,
+        right: 30,
+        zIndex: 11,
+        flex: 1,
+        flexDirection: "row",
+      }}
+    >
+      <View>
+        <Text style={{ fontSize: 24 }}>{second}</Text>
+      </View>
+      <Text
+        style={{
+          position: "absolute",
+          top: 25,
+          fontSize: 12,
+          left: 0,
+        }}
+      >
+        {millisecond}
+      </Text>
+    </View>
+  );
+};
 const Bullet = (props) => {
   const width = props.size[0];
   const height = props.size[1];
@@ -67,4 +100,4 @@ const PlayerCircle = (props) => {
   );
 };
 
-export { Bullet, Virus, PlayerCircle };
+export { Bullet, Virus, PlayerCircle, TimeScore };
