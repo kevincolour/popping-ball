@@ -19,6 +19,7 @@
     "expo-gl": "~10.4.2",
     "expo-haptics": "~10.1.0",
     "expo-linear-gradient": "~9.2.0",
+    "expo-screen-orientation": "~3.3.0",
     "gl-mat4": "^1.1.4",
     "gl-react": "^3.13.0",
     "gl-react-expo": "^3.16.3",

@@ -1,10 +1,10 @@
 import React, { Component } from "react";
-import { View, Modal } from "react-native";
+import { View, Modal, Image } from "react-native";
 import CloseButton from "./app/table-of-contents/closeButton";
 import EStyleSheet from "react-native-extended-stylesheet";
 
 import TableOfContents from "./app/table-of-contents";
-import PhysicsChapter from "./app/physics";
+import RigidBodies from "./app/physics/rigid-bodies";
 import OpenGLChapter from "./app/opengl";
 
 EStyleSheet.build();
@@ -16,16 +16,25 @@ console.disableYellowBox = true;
 export default class App extends Component {
   constructor(props) {
     super(props);
+    let image = require("./assets/8Ball.gif");
+    let imageBall4 = require("./assets/4Ball.gif");
+    let imageBall2 = require("./assets/2Ball.gif");
+    let imageBall1 = require("./assets/1Ball.jpg");
+    let images = [image, imageBall4, imageBall2, imageBall1];
+    const scene = (
+      <RigidBodies restartFunc={this.restartScene} images={images} />
+    );
     this.state = {
-      sceneVisible: false,
-      scene: null,
+      sceneVisible: true,
+      scene: scene,
+      oldScene: scene,
     };
   }
 
   mountScene = (scene) => {
     this.setState({
       sceneVisible: true,
-      scene: scene,
+      scene: this.state.oldScene,
     });
   };
 
@@ -35,22 +44,17 @@ export default class App extends Component {
       scene: null,
     });
   };
+  restartScene = () => {
+    this.unMountScene();
+    this.mountScene();
+  };
 
   render() {
-    let image = require("./assets/background2.jpg");
-
     return (
       <View style={{ flex: 1 }}>
-        <Modal
-          animationType={"slide"}
-          transparent={false}
-          visible={this.state.sceneVisible}
-          onRequestClose={(_) => {}}
-        >
-          {this.state.scene}
+        {this.state.scene}
 
-          <CloseButton onPress={this.unMountScene} />
-        </Modal>
+        <CloseButton onPress={this.restartScene} />
       </View>
     );
   }

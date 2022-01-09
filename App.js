@@ -18,8 +18,12 @@ export default class App extends Component {
     super(props);
     let image = require("./assets/8Ball.gif");
     let imageBall4 = require("./assets/4Ball.gif");
-    let images = [image, imageBall4];
-    const scene = <RigidBodies images={images} />;
+    let imageBall2 = require("./assets/2Ball.gif");
+    let imageBall1 = require("./assets/1Ball.jpg");
+    let images = [image, imageBall4, imageBall2, imageBall1];
+    const scene = (
+      <RigidBodies restartFunc={this.restartScene} images={images} />
+    );
     this.state = {
       sceneVisible: true,
       scene: scene,
@@ -40,25 +44,17 @@ export default class App extends Component {
       scene: null,
     });
   };
+  restartScene = () => {
+    this.unMountScene();
+    this.mountScene();
+  };
 
   render() {
     return (
       <View style={{ flex: 1 }}>
-        <Modal
-          animationType={"slide"}
-          transparent={false}
-          visible={this.state.sceneVisible}
-          onRequestClose={(_) => {}}
-        >
-          {this.state.scene}
+        {this.state.scene}
 
-          <CloseButton
-            onPress={() => {
-              this.unMountScene();
-              this.mountScene();
-            }}
-          />
-        </Modal>
+        <CloseButton onPress={this.restartScene} />
       </View>
     );
   }

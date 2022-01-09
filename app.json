@@ -19,7 +19,8 @@
     },
     "assetBundlePatterns": ["assets", "app/physics/rigid-bodies/assets"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "requireFullScreen": true
     },
     "androidNavigationBar": {
       "visible": "immersive"

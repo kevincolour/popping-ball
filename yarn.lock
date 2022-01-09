@@ -2922,6 +2922,13 @@ expo-modules-core@~0.2.0:
   resolved "https://registry.yarnpkg.com/expo-modules-core/-/expo-modules-core-0.2.0.tgz#68e5b6e53d0afbf8d131578831aed657589a2d42"
   integrity sha512-inpfZ5X/BaTtbj2wG9PA9AC0MN8VyId6KSRlVuEg7+ziurHBy/kKDFxpOddUokhwiln2uhoYPSStJjR/tKypdw==
 
+expo-screen-orientation@~3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/expo-screen-orientation/-/expo-screen-orientation-3.3.0.tgz#790ca327af7d949e44734c861c09457fe1e00d52"
+  integrity sha512-J+VSqaMw65UNjavhIVbSNV8suzx7CzbvuuaPxbyqTzPejjlpcLpTFImS28Px58OXTkcMPky72vrj4KynLKsUNA==
+  dependencies:
+    "@expo/config-plugins" "^3.0.0"
+
 expo@^42.0.0:
   version "42.0.5"
   resolved "https://registry.yarnpkg.com/expo/-/expo-42.0.5.tgz#3f1e02ea324f6c67c8fbe213b134368943310f73"
