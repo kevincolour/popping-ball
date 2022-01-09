@@ -132,8 +132,8 @@ const CreateBox = (state, { touches, screen, time }) => {
       Math.trunc(Math.max(screen.width, screen.height) * 0.075) * 2;
 
     let body = Matter.Bodies.rectangle(
-      0 + Math.random() * (screen.width - virusSize / 2) + virusSize / 2,
       0 + virusSize / 2,
+      0 + Math.random() * (screen.height - virusSize / 2) + virusSize / 2,
       virusSize,
       virusSize,
       {
@@ -182,8 +182,30 @@ const CreateBullet = (state, { touches, screen }) => {
   //-- Handle start touch
   let end = touches.find((x) => x.type === "end");
   let move = touches.find((x) => x.type === "move");
+  let press = touches.find((x) => x.type === "press");
+  let start = touches.find((x) => x.type === "start");
+  if (start) {
+    state["dataObj"].startX = start.event.pageX;
+    state["dataObj"].startY = start.event.pageY;
+  }
   touches.map((ele) => console.log(ele.type));
-  if (end && move) {
+  if (touches.length > 0) {
+    console.log("\n\n");
+  }
+
+  if (end) {
+    const roundValues = [4, 10, 20];
+    let distanceX =
+      end.event.pageX -
+      (state["dataObj"]?.startX ? state["dataObj"]?.startX : 0);
+    let distanceY =
+      end.event.pageY -
+      (state["dataObj"]?.startY ? state["dataObj"]?.startY : 0);
+
+    if (distanceX == 0 && distanceY == 0) {
+      return state;
+    }
+
     let body = Matter.Bodies.circle(
       screen.width / 2,
       screen.height / 2,
@@ -204,18 +226,17 @@ const CreateBullet = (state, { touches, screen }) => {
       renderer: Bullet,
     };
 
-    const roundValues = [4, 10, 20];
-
-    let distanceVal = Math.abs(
-      distance([0, 0], [move.delta.pageX, move.delta.pageY])
-    );
+    let distanceVal = Math.abs(distance([0, 0], [distanceX, distanceY]));
     let distanceRounded = roundToArray(roundValues, distanceVal);
 
     let multiplier = distanceRounded / distanceVal;
 
+    let x = distanceX * multiplier;
+    let y = distanceY * multiplier;
+
     Matter.Body.setVelocity(body, {
-      x: move.delta.pageX * multiplier,
-      y: move.delta.pageY * multiplier,
+      x: x,
+      y: y,
     });
   }
 
@@ -264,9 +285,11 @@ const Timer = (state, { time }) => {
   let timeMS = parseInt(state["timer"]);
 
   let timeSecond = Math.ceil(timeMS / 1000);
-
-  console.log(timeSecond);
-  if (timeSecond % 10 == 0 && timeSecondPrev & (10 != 0)) {
+  let timeDifficulty = Math.min(9, Math.floor(timeSecond / 10));
+  if (
+    timeSecond % (10 - timeDifficulty) == 0 &&
+    timeSecondPrev & (10 - timeDifficulty != 0)
+  ) {
     state["createVirus"] = true;
   }
   return state;

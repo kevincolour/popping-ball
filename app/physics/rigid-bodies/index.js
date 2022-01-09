@@ -49,7 +49,7 @@ const RigidBodies = (props) => {
     ...barrierOptions,
   });
 
-  const playerRadius = width / 16;
+  const playerRadius = Math.trunc(Math.max(width, height) / 32);
   const playerBody = Matter.Bodies.circle(width / 2, height / 2, playerRadius, {
     ...barrierOptions,
     label: "playerCircle",
@@ -86,6 +86,8 @@ const RigidBodies = (props) => {
               body: playerBody,
               renderer: PlayerCircle,
             },
+            dataObj: {},
+
             images: props.images,
             restart: props.restartFunc,
             createCollissionHandler: createCollissionHandler,
